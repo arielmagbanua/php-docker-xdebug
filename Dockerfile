@@ -1,9 +1,16 @@
 # Use the official PHP image from Docker Hub
 FROM php:8.4-apache
 
-# Install required PHP extensions
-RUN apt-get update && apt-get install -y unzip git \
-    && docker-php-ext-install pdo pdo_mysql
+# Install required PHP extensions and dependencies
+RUN apt-get update && apt-get install -y unzip git libpng-dev libjpeg-dev libfreetype6-dev \
+    && docker-php-ext-install pdo pdo_mysql gd
+
+# Install Xdebug
+RUN pecl install xdebug \
+    && docker-php-ext-enable xdebug
+
+# Copy xdebug.ini configuration file to PHP's conf.d directory
+COPY xdebug.ini /usr/local/etc/php/conf.d/
 
 # Install Composer globally
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
